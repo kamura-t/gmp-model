@@ -1,0 +1,4712 @@
+{
+  "tables": [
+    {
+      "name": "events",
+      "category": "イベント中心",
+      "description": "演奏会・イベントの基本情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベントID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "イベントコード（スラッグ用、API参照用、YYYYMMDD-XX形式推奨）"
+        },
+        {
+          "name": "event_name_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "イベント名（日本語）"
+        },
+        {
+          "name": "event_name_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "イベント名（英語・原綴り含む）"
+        },
+        {
+          "name": "event_subtitle_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "イベントサブタイトル（日本語）"
+        },
+        {
+          "name": "event_subtitle_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "イベントサブタイトル（英語）"
+        },
+        {
+          "name": "event_date",
+          "type": "DATE",
+          "constraints": "NOT NULL",
+          "description": "イベント開催日"
+        },
+        {
+          "name": "event_type_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_types",
+          "description": "イベント種別ID"
+        },
+        {
+          "name": "event_series_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_series",
+          "description": "公演シリーズID（NULL可）"
+        },
+        {
+          "name": "venue_id",
+          "type": "BIGINT",
+          "constraints": "FK to venues",
+          "description": "会場ID（NULL可、未定はvenuesテーブルに定義）"
+        },
+        {
+          "name": "door_time_planned",
+          "type": "TIME",
+          "constraints": "",
+          "description": "開場時刻（予定・公開）"
+        },
+        {
+          "name": "door_time_actual",
+          "type": "TIME",
+          "constraints": "",
+          "description": "開場時刻（実際・内部）"
+        },
+        {
+          "name": "start_time_planned",
+          "type": "TIME",
+          "constraints": "",
+          "description": "開演（開始）時刻（予定・公開）"
+        },
+        {
+          "name": "start_time_actual",
+          "type": "TIME",
+          "constraints": "",
+          "description": "開演（開始）時刻（実際・内部）"
+        },
+        {
+          "name": "end_time_planned",
+          "type": "TIME",
+          "constraints": "",
+          "description": "終演（終了）時刻（予定・公開）"
+        },
+        {
+          "name": "end_time_actual",
+          "type": "TIME",
+          "constraints": "",
+          "description": "終演（終了）時刻（実際・内部）"
+        },
+        {
+          "name": "time_slot",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約",
+          "description": "時間帯（'午前'/'午後'/'夜'/'未定'/'午前～午後'/'午後～夜'/'午前～午後～夜'）"
+        },
+        {
+          "name": "weather_forecast",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "天気（公演時間帯・前日予報）"
+        },
+        {
+          "name": "weather_actual",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "天気（公演時間帯・実際）"
+        },
+        {
+          "name": "seat_type",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約",
+          "description": "指定席／自由席（'指定'/'自由'/'未定'）"
+        },
+        {
+          "name": "same_day_ticket_info",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "当日券情報（日本語、トップページのイベントカード下に表示するテキスト、例：「当日券販売有り」など）"
+        },
+        {
+          "name": "same_day_ticket_info_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "当日券情報（英語、トップページのイベントカード下に表示するテキスト、例：「Same-day tickets available」など）"
+        },
+        {
+          "name": "kitchen_car_id",
+          "type": "BIGINT",
+          "constraints": "FK to kitchen_cars",
+          "description": "キッチンカーID（NULL可）"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考"
+        },
+        {
+          "name": "review",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "振り返り（内部向け）"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, DEFAULT 'scheduled'",
+          "description": "ステータス（'scheduled'/'completed'/'cancelled'/'postponed'）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_type_id",
+          "references_table": "event_types",
+          "references_column": "id"
+        },
+        {
+          "column": "event_series_id",
+          "references_table": "event_series",
+          "references_column": "id"
+        },
+        {
+          "column": "venue_id",
+          "references_table": "venues",
+          "references_column": "id"
+        },
+        {
+          "column": "kitchen_car_id",
+          "references_table": "kitchen_cars",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_types",
+      "category": "マスタテーブル",
+      "description": "演奏会の種別を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベント種別ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "イベント種別コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "イベント種別名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "イベント種別名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "event_attendance_categories",
+      "category": "イベント関連",
+      "description": "入場者数のカテゴリを管理（ヴォートル、ぴあ、学生、教職員など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "カテゴリID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "カテゴリコード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "NOT NULL",
+          "description": "カテゴリ名（日本語）"
+        },
+        {
+          "name": "category_type",
+          "type": "VARCHAR(20)",
+          "constraints": "NOT NULL",
+          "description": "カテゴリ種別（'paid'/'free'/'total'）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "event_attendance_details",
+      "category": "イベント関連",
+      "description": "イベントの入場者数をカテゴリごとに管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "入場者数詳細ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "attendance_category_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_attendance_categories, NOT NULL",
+          "description": "入場者数カテゴリID"
+        },
+        {
+          "name": "attendance_count",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "入場者数"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "attendance_category_id",
+          "references_table": "event_attendance_categories",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_attendance",
+      "category": "イベント関連",
+      "description": "イベントの入場者数サマリー情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "入場者数サマリーID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, UNIQUE, NOT NULL",
+          "description": "イベントID（1イベントに1レコード）"
+        },
+        {
+          "name": "available_seats",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "有効座席数"
+        },
+        {
+          "name": "attendance_rate",
+          "type": "DECIMAL(5,2)",
+          "constraints": "",
+          "description": "入場率（パーセンテージ、0.00〜100.00）"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_formations",
+      "category": "イベント関連",
+      "description": "イベントと編成の多対多の関係を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベント編成ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "formation_id",
+          "type": "BIGINT",
+          "constraints": "FK to formations, NOT NULL",
+          "description": "編成ID"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "formation_id",
+          "references_table": "formations",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_genres",
+      "category": "イベント関連",
+      "description": "イベントとジャンルの多対多の関係を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベントジャンルID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "genre_id",
+          "type": "BIGINT",
+          "constraints": "FK to genres, NOT NULL",
+          "description": "ジャンルID"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "genre_id",
+          "references_table": "genres",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_kitchen_cars",
+      "category": "イベント関連",
+      "description": "イベントとキッチンカーの多対多の関係を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベントキッチンカーID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "kitchen_car_id",
+          "type": "BIGINT",
+          "constraints": "FK to kitchen_cars, NOT NULL",
+          "description": "キッチンカーID"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考（出店時間、特記事項など）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "kitchen_car_id",
+          "references_table": "kitchen_cars",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_organizer_roles",
+      "category": "イベント関連",
+      "description": "イベントの主催者役割を管理（主催、共催、後援、協賛、協力など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "役割ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "役割コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(50)",
+          "constraints": "NOT NULL",
+          "description": "役割名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "役割名（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "event_organizers",
+      "category": "イベント関連",
+      "description": "イベントの主催者情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "主催者情報ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "organizer_role_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_organizer_roles, NOT NULL",
+          "description": "主催者役割ID"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "FK to people_orgs, NOT NULL",
+          "description": "人物・団体ID"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "organizer_role_id",
+          "references_table": "event_organizer_roles",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_performers",
+      "category": "イベント関連",
+      "description": "イベントの出演者情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "出演者情報ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "event_work_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_works",
+          "description": "イベント作品ID（特定の作品での出演の場合のみ、イベント全体の出演者の場合はNULL可）"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "FK to people_orgs, NOT NULL",
+          "description": "人物・団体ID"
+        },
+        {
+          "name": "performance_role_id",
+          "type": "BIGINT",
+          "constraints": "FK to performance_roles",
+          "description": "演奏役割ID（個人の場合のみ、団体の場合はNULL可）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "ゲスト出演などの特記事項"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "event_work_id",
+          "references_table": "event_works",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        },
+        {
+          "column": "performance_role_id",
+          "references_table": "performance_roles",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_recordings",
+      "category": "イベント関連",
+      "description": "演奏会（`events`）の収録情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "収録情報ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "recording_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "収録年度（数値）"
+        },
+        {
+          "name": "recording_model_number",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "型番（テキスト）"
+        },
+        {
+          "name": "recording_video_internal",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "学内配信用映像（テキスト）"
+        },
+        {
+          "name": "recording_video_external",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "学外配信用映像（テキスト）"
+        },
+        {
+          "name": "audio_publication_status",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "音声公開状況: 非公開／学内限定公開／公開"
+        },
+        {
+          "name": "video_publication_status",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "映像公開状況: 非公開／学内限定公開／公開"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_tickets",
+      "category": "イベント関連",
+      "description": "イベントのチケット情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "チケット情報ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "ticket_type_id",
+          "type": "BIGINT",
+          "constraints": "FK to ticket_types, NOT NULL",
+          "description": "チケット種別ID"
+        },
+        {
+          "name": "price",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "価格（0の場合は「無料」と表示）"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "入場料備考"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "ticket_type_id",
+          "references_table": "ticket_types",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_work_scores",
+      "category": "イベント関連",
+      "description": "演奏会プログラムの曲目（`event_works`）に対して、パートごとの楽譜情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "楽譜情報ID（自動採番）"
+        },
+        {
+          "name": "event_work_id",
+          "type": "BIGINT",
+          "constraints": "FK to event_works, NOT NULL",
+          "description": "イベント作品ID"
+        },
+        {
+          "name": "performance_role_id",
+          "type": "BIGINT",
+          "constraints": "FK to performance_roles, NOT NULL",
+          "description": "演奏役割ID（楽器情報）"
+        },
+        {
+          "name": "part_name",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "詳細区分（例: \"1st\", \"2nd\", \"Solo\"等、または補足情報、NULL可）"
+        },
+        {
+          "name": "score_manifestation_id",
+          "type": "BIGINT",
+          "constraints": "FK to work_score_manifestations",
+          "description": "楽譜版ID（Manifestationレベル、NULL可）"
+        },
+        {
+          "name": "score_item_id",
+          "type": "BIGINT",
+          "constraints": "FK to work_score_items",
+          "description": "所蔵楽譜ID（Itemレベル、NULL可）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考"
+        },
+        {
+          "name": "rights_processed",
+          "type": "VARCHAR(20)",
+          "constraints": "",
+          "description": "権利処理状況（'済', '未実施', '不明'、NULL可）"
+        },
+        {
+          "name": "rights_processed_date",
+          "type": "DATE",
+          "constraints": "",
+          "description": "権利処理日（NULL可）"
+        },
+        {
+          "name": "rights_processed_notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "権利処理備考（NULL可）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_work_id",
+          "references_table": "event_works",
+          "references_column": "id"
+        },
+        {
+          "column": "performance_role_id",
+          "references_table": "performance_roles",
+          "references_column": "id"
+        },
+        {
+          "column": "score_manifestation_id",
+          "references_table": "work_score_manifestations",
+          "references_column": "id"
+        },
+        {
+          "column": "score_item_id",
+          "references_table": "work_score_items",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_works",
+      "category": "イベント関連",
+      "description": "イベントと作品の対応関係を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベント作品ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "FK to works, NOT NULL",
+          "description": "作品ID"
+        },
+        {
+          "name": "program_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL",
+          "description": "演奏順序"
+        },
+        {
+          "name": "is_encore",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT false",
+          "description": "アンコール曲フラグ"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "実際の演奏時間（このイベントでの演奏時間）"
+        },
+        {
+          "name": "performers_note",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "この曲の演奏者（特記事項）"
+        },
+        {
+          "name": "program_note_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "このイベント用の曲目解説（日本語）"
+        },
+        {
+          "name": "program_note_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "このイベント用の曲目解説（英語）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "kitchen_cars",
+      "category": "マスタテーブル",
+      "description": "キッチンカー出店情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "キッチンカーID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "キッチンカーコード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "キッチンカー名称"
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "キッチンカーのURL（公式サイト、SNS等）"
+        },
+        {
+          "name": "media_file_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files",
+          "description": "メディアファイルID（PDFまたは画像、NULL可）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "media_file_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "server_configs",
+      "category": "システム管理",
+      "description": "サーバ側の非公開設定情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "設定ID（自動採番）"
+        },
+        {
+          "name": "config_key",
+          "type": "VARCHAR(100)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "設定キー（一意、例: 'smtp_host', 'api_key'）"
+        },
+        {
+          "name": "config_value",
+          "type": "TEXT",
+          "constraints": "NOT NULL",
+          "description": "設定値（暗号化が必要な場合は暗号化して保存）"
+        },
+        {
+          "name": "value_type",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, DEFAULT 'string'",
+          "description": "値の型（'string'/'number'/'boolean'/'json'）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語、設定の用途を記載）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_encrypted",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT false",
+          "description": "暗号化フラグ（trueの場合は暗号化して保存）"
+        },
+        {
+          "name": "is_public",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT false",
+          "description": "公開フラグ（falseの場合はサーバ側のみ、trueの場合はAPIで取得可能）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "site_settings",
+      "category": "システム管理",
+      "description": "Webサイトの公開設定情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "設定ID（自動採番、通常は1レコードのみ）"
+        },
+        {
+          "name": "site_name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "サイト名（日本語）"
+        },
+        {
+          "name": "site_name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "サイト名（英語）"
+        },
+        {
+          "name": "site_description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "サイト説明（日本語）"
+        },
+        {
+          "name": "site_description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "サイト説明（英語）"
+        },
+        {
+          "name": "site_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "サイトURL（例: https://example.com）"
+        },
+        {
+          "name": "logo_image_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files",
+          "description": "ロゴ画像ID（NULL可）"
+        },
+        {
+          "name": "favicon_image_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files",
+          "description": "ファビコン画像ID（NULL可）"
+        },
+        {
+          "name": "default_og_image_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files",
+          "description": "デフォルトOGP画像ID（NULL可）"
+        },
+        {
+          "name": "default_meta_description_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "デフォルトメタディスクリプション（日本語）"
+        },
+        {
+          "name": "default_meta_description_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "デフォルトメタディスクリプション（英語）"
+        },
+        {
+          "name": "default_meta_keywords_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "デフォルトメタキーワード（日本語、カンマ区切り）"
+        },
+        {
+          "name": "default_meta_keywords_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "デフォルトメタキーワード（英語、カンマ区切り）"
+        },
+        {
+          "name": "contact_email",
+          "type": "VARCHAR(255)",
+          "constraints": "",
+          "description": "連絡先メールアドレス"
+        },
+        {
+          "name": "contact_phone",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "電話番号"
+        },
+        {
+          "name": "contact_address_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "住所（日本語）"
+        },
+        {
+          "name": "contact_address_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "住所（英語）"
+        },
+        {
+          "name": "twitter_account",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "Twitter/Xアカウント（@なし）"
+        },
+        {
+          "name": "facebook_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "FacebookページURL"
+        },
+        {
+          "name": "instagram_account",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "Instagramアカウント"
+        },
+        {
+          "name": "youtube_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "YouTubeチャンネルURL"
+        },
+        {
+          "name": "footer_copyright_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "コピーライト表示（日本語）"
+        },
+        {
+          "name": "footer_copyright_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "コピーライト表示（英語）"
+        },
+        {
+          "name": "footer_text_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "フッターテキスト（日本語）"
+        },
+        {
+          "name": "footer_text_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "フッターテキスト（英語）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "logo_image_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        },
+        {
+          "column": "favicon_image_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        },
+        {
+          "column": "default_og_image_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "system_users",
+      "category": "システム管理",
+      "description": "管理画面にログインするシステムユーザー（サイト編集者）の基本情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "ユーザーID（自動採番）"
+        },
+        {
+          "name": "username",
+          "type": "VARCHAR(100)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "ユーザー名（ログイン用、一意）"
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "メールアドレス（一意、通知用）"
+        },
+        {
+          "name": "password_hash",
+          "type": "VARCHAR(255)",
+          "constraints": "NOT NULL",
+          "description": "パスワードハッシュ（bcrypt等）"
+        },
+        {
+          "name": "display_name",
+          "type": "VARCHAR(100)",
+          "constraints": "NOT NULL",
+          "description": "表示名（画面に表示される名前）"
+        },
+        {
+          "name": "full_name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "氏名（日本語、任意）"
+        },
+        {
+          "name": "full_name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "氏名（英語、任意）"
+        },
+        {
+          "name": "email_verified_at",
+          "type": "TIMESTAMP",
+          "constraints": "",
+          "description": "メールアドレス確認日時（NULLの場合は未確認）"
+        },
+        {
+          "name": "password_changed_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "パスワード最終変更日時"
+        },
+        {
+          "name": "last_login_at",
+          "type": "TIMESTAMP",
+          "constraints": "",
+          "description": "最終ログイン日時"
+        },
+        {
+          "name": "last_login_ip",
+          "type": "VARCHAR(45)",
+          "constraints": "",
+          "description": "最終ログインIPアドレス（IPv4/IPv6対応）"
+        },
+        {
+          "name": "failed_login_attempts",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "連続ログイン失敗回数"
+        },
+        {
+          "name": "locked_until",
+          "type": "TIMESTAMP",
+          "constraints": "",
+          "description": "アカウントロック解除日時（NULLの場合はロックされていない）"
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, DEFAULT 'viewer'",
+          "description": "ロール（'admin'/'editor'/'viewer'）"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, DEFAULT 'active'",
+          "description": "ステータス（'active'/'inactive'/'suspended'）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ（論理削除用）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "genres",
+      "category": "マスタテーブル",
+      "description": "音楽のジャンルを管理（例：協奏曲、作曲、声楽、ピアノ、管打楽など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "ジャンルID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "ジャンルコード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "ジャンル名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "ジャンル名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "ticket_types",
+      "category": "マスタテーブル",
+      "description": "チケットの種別を管理（例：一般、一般（当日）、台東区民割、台東区民割（当日）、U-25など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "チケット種別ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "チケット種別コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "チケット種別名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "チケット種別名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ値の場合は名前順で並べる）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "content_images",
+      "category": "メディア管理",
+      "description": "ページ・コンテンツ（ニュース、会場情報等）に関連する画像を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "コンテンツ画像ID（自動採番）"
+        },
+        {
+          "name": "content_type",
+          "type": "VARCHAR(30)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "コンテンツ種別（'page'/'news'/'venue'等）"
+        },
+        {
+          "name": "content_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL",
+          "description": "コンテンツID（`content_type`に応じたテーブルのID）"
+        },
+        {
+          "name": "media_file_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files, NOT NULL",
+          "description": "メディアファイルID"
+        },
+        {
+          "name": "image_type",
+          "type": "VARCHAR(30)",
+          "constraints": "",
+          "description": "画像種別（'hero'/'inline'/'thumbnail'等、任意）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ`content_type`と`content_id`内での順序）"
+        },
+        {
+          "name": "position",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "位置（'top'/'middle'/'bottom'等、任意）"
+        },
+        {
+          "name": "alt_text_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（日本語、アクセシビリティ用）"
+        },
+        {
+          "name": "alt_text_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（英語）"
+        },
+        {
+          "name": "caption_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（日本語）"
+        },
+        {
+          "name": "caption_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（英語）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "media_file_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_images",
+      "category": "メディア管理",
+      "description": "イベントに関連する画像（フライヤー、ポスター、ギャラリー、記録写真等）を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "イベント画像ID（自動採番）"
+        },
+        {
+          "name": "event_id",
+          "type": "BIGINT",
+          "constraints": "FK to events, NOT NULL",
+          "description": "イベントID"
+        },
+        {
+          "name": "media_file_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files, NOT NULL",
+          "description": "メディアファイルID"
+        },
+        {
+          "name": "image_type",
+          "type": "VARCHAR(30)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "画像種別（'flyer'/'poster'/'gallery'/'record'）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ`image_type`内での順序）"
+        },
+        {
+          "name": "is_primary",
+          "type": "BOOLEAN",
+          "constraints": "DEFAULT false",
+          "description": "メイン画像フラグ（各`image_type`ごとに1つのみ）"
+        },
+        {
+          "name": "alt_text_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（日本語、アクセシビリティ用）"
+        },
+        {
+          "name": "alt_text_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（英語）"
+        },
+        {
+          "name": "caption_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（日本語）"
+        },
+        {
+          "name": "caption_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（英語）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "event_id",
+          "references_table": "events",
+          "references_column": "id"
+        },
+        {
+          "column": "media_file_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "hero_banners",
+      "category": "メディア管理",
+      "description": "トップページのヒーローエリアに表示するバナー画像を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "バナーID（自動採番）"
+        },
+        {
+          "name": "media_file_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK to media_files",
+          "description": "バナー画像のメディアファイルID"
+        },
+        {
+          "name": "link_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "リンク先URL（外部・内部どちらも可）"
+        },
+        {
+          "name": "link_target",
+          "type": "VARCHAR(20)",
+          "constraints": "DEFAULT '_self'",
+          "description": "リンクの開き方（'_self'=同一タブ, '_blank'=新規タブ）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序（小さい値が先に表示）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効フラグ（公開/非公開）"
+        },
+        {
+          "name": "alt_text_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（日本語、画像が表示できない場合に使用）"
+        },
+        {
+          "name": "alt_text_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（英語）"
+        },
+        {
+          "name": "caption_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（日本語、画像上にオーバーレイ表示可能）"
+        },
+        {
+          "name": "caption_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（英語）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "media_file_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "media_files",
+      "category": "メディア管理",
+      "description": "アップロードされたメディアファイル（画像、PDF等）の基本情報を一元管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "メディアファイルID（自動採番）"
+        },
+        {
+          "name": "file_name",
+          "type": "VARCHAR(255)",
+          "constraints": "NOT NULL",
+          "description": "オリジナルファイル名（ユーザーがアップロードしたファイル名）"
+        },
+        {
+          "name": "stored_name",
+          "type": "VARCHAR(255)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "保存時のファイル名（UUID等、一意性を保証）"
+        },
+        {
+          "name": "file_path",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "ファイルの保存パス（サーバー内のパス）"
+        },
+        {
+          "name": "file_url",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "公開URL（CDNや公開ディレクトリのURL）"
+        },
+        {
+          "name": "mime_type",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "MIMEタイプ（例: image/jpeg, image/png, application/pdf）"
+        },
+        {
+          "name": "file_size",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "ファイルサイズ（バイト）"
+        },
+        {
+          "name": "width",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "画像の幅（ピクセル、画像の場合のみ）"
+        },
+        {
+          "name": "height",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "画像の高さ（ピクセル、画像の場合のみ）"
+        },
+        {
+          "name": "blurhash",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "プレースホルダー用のBlurHash文字列（画像の場合のみ）"
+        },
+        {
+          "name": "metadata",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "EXIF情報等のメタデータ（テキスト形式で記述）"
+        },
+        {
+          "name": "uploaded_by",
+          "type": "BIGINT",
+          "constraints": "FK to system_users",
+          "description": "アップロードしたサイト編集者ID（NULL可、システムアップロードの場合はNULL）"
+        },
+        {
+          "name": "uploaded_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "アップロード日時"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効フラグ（論理削除用）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "uploaded_by",
+          "references_table": "system_users",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "media_variations",
+      "category": "メディア管理",
+      "description": "元の画像から生成されたバリエーション（サムネイル、中サイズ、大サイズ）を管理。**現在の実装ではAVIF形式**（詳細は [メディアファイル管理設計方針](./メディアファイル管理設計方針.md) の「最新の構成（AVIF移行後）」を参照）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "バリエーションID（自動採番）"
+        },
+        {
+          "name": "original_media_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files, NOT NULL",
+          "description": "元のメディアファイルID"
+        },
+        {
+          "name": "variation_type",
+          "type": "VARCHAR(30)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "バリエーション種別（'thumbnail'/'medium'/'large'/'original'）"
+        },
+        {
+          "name": "file_name",
+          "type": "VARCHAR(255)",
+          "constraints": "NOT NULL",
+          "description": "バリエーションファイル名"
+        },
+        {
+          "name": "file_path",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "ファイルの保存パス"
+        },
+        {
+          "name": "file_url",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "公開URL"
+        },
+        {
+          "name": "width",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "画像の幅（ピクセル）"
+        },
+        {
+          "name": "height",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "画像の高さ（ピクセル）"
+        },
+        {
+          "name": "file_size",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "ファイルサイズ（バイト）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "original_media_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "performer_images",
+      "category": "メディア管理",
+      "description": "人物・団体（演奏者）に関連する画像（プロフィール写真、ポートレート、活動写真等）を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "演奏者画像ID（自動採番）"
+        },
+        {
+          "name": "performer_id",
+          "type": "BIGINT",
+          "constraints": "FK to people_orgs, NOT NULL",
+          "description": "人物・団体ID"
+        },
+        {
+          "name": "media_file_id",
+          "type": "BIGINT",
+          "constraints": "FK to media_files, NOT NULL",
+          "description": "メディアファイルID"
+        },
+        {
+          "name": "image_type",
+          "type": "VARCHAR(30)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "画像種別（'profile'/'portrait'/'action'）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ`image_type`内での順序）"
+        },
+        {
+          "name": "context",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "使用コンテキスト（特定の公演用等、任意）"
+        },
+        {
+          "name": "valid_from",
+          "type": "DATE",
+          "constraints": "",
+          "description": "使用開始日（NULLの場合は無期限）"
+        },
+        {
+          "name": "valid_until",
+          "type": "DATE",
+          "constraints": "",
+          "description": "使用終了日（NULLの場合は無期限）"
+        },
+        {
+          "name": "is_current",
+          "type": "BOOLEAN",
+          "constraints": "DEFAULT true",
+          "description": "現在のメイン画像フラグ"
+        },
+        {
+          "name": "alt_text_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（日本語、アクセシビリティ用）"
+        },
+        {
+          "name": "alt_text_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代替テキスト（英語）"
+        },
+        {
+          "name": "caption_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（日本語）"
+        },
+        {
+          "name": "caption_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "キャプション（英語）"
+        },
+        {
+          "name": "photographer_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "撮影者名（日本語、クレジット表記用）"
+        },
+        {
+          "name": "photographer_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "撮影者名（英語、クレジット表記用）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "performer_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        },
+        {
+          "column": "media_file_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "people_orgs",
+      "category": "人物・団体",
+      "description": "人物と団体の基本情報を統一的に管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "人物・団体ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "人物・団体コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "entity_type",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "エンティティ種別（'person'/'organization'）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "名称（日本語）※人物の場合は姓名から自動生成（検索用、**アプリケーション側で結合**）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "名称（英語）※人物の場合は姓名から自動生成（検索用、**アプリケーション側で結合**）"
+        },
+        {
+          "name": "name_kana",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "名称（カナ）※人物の場合は姓名から自動生成（検索用、**アプリケーション側で結合**）"
+        },
+        {
+          "name": "display_name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "表示用名称（日本語、特殊文字含む、任意）"
+        },
+        {
+          "name": "display_name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "表示用名称（英語、任意）"
+        },
+        {
+          "name": "display_name_kana",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "表示用名称（カナ、任意）"
+        },
+        {
+          "name": "birth_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "生年（人物の場合）"
+        },
+        {
+          "name": "death_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "没年（人物の場合）"
+        },
+        {
+          "name": "founded_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "設立年（団体の場合）"
+        },
+        {
+          "name": "dissolved_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "解散年（団体の場合）"
+        },
+        {
+          "name": "family_name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（日本語）※人物の場合のみ、必須"
+        },
+        {
+          "name": "middle_name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "ミドルネーム（日本語）※人物の場合のみ、任意"
+        },
+        {
+          "name": "given_name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（日本語）※人物の場合のみ、必須"
+        },
+        {
+          "name": "family_name_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（英語）※人物の場合のみ、任意"
+        },
+        {
+          "name": "middle_name_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "ミドルネーム（英語）※人物の場合のみ、任意"
+        },
+        {
+          "name": "given_name_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（英語）※人物の場合のみ、任意"
+        },
+        {
+          "name": "family_name_kana",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（カナ）※人物の場合のみ、任意"
+        },
+        {
+          "name": "middle_name_kana",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "ミドルネーム（カナ）※人物の場合のみ、任意"
+        },
+        {
+          "name": "given_name_kana",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（カナ）※人物の場合のみ、任意"
+        },
+        {
+          "name": "website_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "公式ウェブサイトURL"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "organization_memberships",
+      "category": "人物・団体",
+      "description": "団体や音楽グループのメンバーシップ情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "メンバーシップID（自動採番）"
+        },
+        {
+          "name": "organization_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY, NOT NULL",
+          "description": "団体ID（`people_orgs.id`への参照、`entity_type='organization'`）"
+        },
+        {
+          "name": "member_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY, NOT NULL",
+          "description": "メンバーID（`people_orgs.id`への参照、`entity_type='person'`）"
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "役割（テキスト入力、例：リーダー、メンバー、コンサートマスターなど）"
+        },
+        {
+          "name": "start_date",
+          "type": "DATE",
+          "constraints": "",
+          "description": "加入日"
+        },
+        {
+          "name": "end_date",
+          "type": "DATE",
+          "constraints": "",
+          "description": "脱退日（NULLの場合は現在も在籍）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考（内部メモなど）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "organization_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        },
+        {
+          "column": "member_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "people_org_awards",
+      "category": "人物・団体",
+      "description": "人物と団体の受賞情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "受賞ID（自動採番）"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY, NOT NULL",
+          "description": "人物・団体ID（`people_orgs.id`への参照）"
+        },
+        {
+          "name": "award_name_ja",
+          "type": "VARCHAR(300)",
+          "constraints": "NOT NULL",
+          "description": "受賞名（日本語）"
+        },
+        {
+          "name": "award_name_en",
+          "type": "VARCHAR(300)",
+          "constraints": "",
+          "description": "受賞名（英語）"
+        },
+        {
+          "name": "award_year",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "受賞年（1000〜9999の範囲）"
+        },
+        {
+          "name": "granting_organization_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "授与機関（日本語）"
+        },
+        {
+          "name": "granting_organization_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "授与機関（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序（同じ年の受賞がある場合や、受賞年がNULLの場合に使用）"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考（内部メモなど）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "people_org_details",
+      "category": "人物・団体",
+      "description": "人物と団体の詳細情報を統一的に管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "人物・団体詳細ID（自動採番）"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY, NOT NULL",
+          "description": "人物・団体ID（`people_orgs.id`への参照）"
+        },
+        {
+          "name": "content_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明文（日本語）※任意"
+        },
+        {
+          "name": "content_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明文（英語）"
+        },
+        {
+          "name": "biography_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "経歴（日本語）※任意"
+        },
+        {
+          "name": "biography_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "経歴（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "is_public",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "公開フラグ（外部公開/内部公開の判別）"
+        },
+        {
+          "name": "photo_media_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY",
+          "description": "写真メディアID（`media_files.id`への参照）"
+        },
+        {
+          "name": "contact_info",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "連絡先情報（非公開、テキストで記述）"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考・メモ（非公開）※所在地情報もここに記載（内部向け）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        },
+        {
+          "column": "photo_media_id",
+          "references_table": "media_files",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "person_aliases",
+      "category": "人物・団体",
+      "description": "人物の別名（芸名、ペンネーム、旧名、通称など）を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "別名ID（自動採番）"
+        },
+        {
+          "name": "person_id",
+          "type": "BIGINT",
+          "constraints": "FOREIGN KEY, NOT NULL",
+          "description": "人物ID（`people_orgs.id`への参照）"
+        },
+        {
+          "name": "alias_type",
+          "type": "VARCHAR(50)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "別名種別（'stage_name', 'pen_name', 'former_name', 'common_name', 'english_name', 'other'）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "別名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "別名（英語）"
+        },
+        {
+          "name": "name_kana",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "別名（カナ）"
+        },
+        {
+          "name": "family_name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（日本語）"
+        },
+        {
+          "name": "given_name_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（日本語）"
+        },
+        {
+          "name": "family_name_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（英語）"
+        },
+        {
+          "name": "given_name_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（英語）"
+        },
+        {
+          "name": "family_name_kana",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "姓（カナ）"
+        },
+        {
+          "name": "given_name_kana",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "名（カナ）"
+        },
+        {
+          "name": "is_primary",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT false",
+          "description": "主要な別名かどうか"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考（使用期間、用途など）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "person_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "venues",
+      "category": "マスタテーブル",
+      "description": "演奏会で使用する会場の基本情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "会場ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "会場コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "会場名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "会場名（英語）"
+        },
+        {
+          "name": "venue_type",
+          "type": "VARCHAR(30)",
+          "constraints": "CHECK制約, NOT NULL",
+          "description": "会場種別（'学内'/'学外'）"
+        },
+        {
+          "name": "address_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "所在地（日本語）"
+        },
+        {
+          "name": "address_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "所在地（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "会場説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "会場説明（英語）"
+        },
+        {
+          "name": "website_url",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "会場公式サイトURL"
+        },
+        {
+          "name": "facilities",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "設備情報（ピアノ、録音設備等、テキストで記述）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "work_arrangers",
+      "category": "作品",
+      "description": "",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "レコードID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `works.id`",
+          "description": "作品ID"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `people_orgs.id`",
+          "description": "編曲者ID（人物・団体マスタを参照）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ作品内での順序）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_composers",
+      "category": "作品",
+      "description": "",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "レコードID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `works.id`",
+          "description": "作品ID"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `people_orgs.id`",
+          "description": "作曲家ID（人物・団体マスタを参照）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ作品内での順序）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_expressions",
+      "category": "作品",
+      "description": "FRBRのExpressionレベルを管理（編曲・版など）",
+      "columns": [],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "arranger_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        },
+        {
+          "column": "transmitter_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_genres",
+      "category": "作品",
+      "description": "作品とジャンルの多対多の関係を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "作品ジャンルID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "FK to works, NOT NULL",
+          "description": "作品ID"
+        },
+        {
+          "name": "genre_id",
+          "type": "BIGINT",
+          "constraints": "FK to genres, NOT NULL",
+          "description": "ジャンルID"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "genre_id",
+          "references_table": "genres",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_librettists",
+      "category": "作品",
+      "description": "",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "レコードID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `works.id`",
+          "description": "作品ID"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `people_orgs.id`",
+          "description": "台本作者ID（人物・団体マスタを参照）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ作品内での順序）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_lyricists",
+      "category": "作品",
+      "description": "",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "レコードID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `works.id`",
+          "description": "作品ID"
+        },
+        {
+          "name": "people_org_id",
+          "type": "BIGINT",
+          "constraints": "NOT NULL, FK → `people_orgs.id`",
+          "description": "作詞者ID（人物・団体マスタを参照）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "DEFAULT 0",
+          "description": "表示順序（同じ作品内での順序）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        },
+        {
+          "column": "people_org_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_movements",
+      "category": "作品",
+      "description": "作品の楽章情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "楽章ID（自動採番）"
+        },
+        {
+          "name": "work_id",
+          "type": "BIGINT",
+          "constraints": "FK to works, NOT NULL",
+          "description": "作品ID"
+        },
+        {
+          "name": "movement_number",
+          "type": "INTEGER",
+          "constraints": "NOT NULL",
+          "description": "楽章番号（I, II, III...に対応）"
+        },
+        {
+          "name": "title_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "楽章タイトル（日本語）"
+        },
+        {
+          "name": "title_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "楽章タイトル（英語）"
+        },
+        {
+          "name": "tempo_marking",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "速度標語（Allegro, Andante など）"
+        },
+        {
+          "name": "key_signature",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "調性（楽章ごとの調性）"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "楽章の演奏時間（分）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序（楽章順）"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "references_table": "works",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_score_items",
+      "category": "作品",
+      "description": "FRBRのItemレベルを管理（所蔵楽譜1冊1冊）",
+      "columns": [],
+      "foreign_keys": [
+        {
+          "column": "score_manifestation_id",
+          "references_table": "work_score_manifestations",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "work_score_manifestations",
+      "category": "作品",
+      "description": "FRBRのManifestationレベルを管理（楽譜版・出版社単位）",
+      "columns": [],
+      "foreign_keys": [
+        {
+          "column": "work_expression_id",
+          "references_table": "work_expressions",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "works",
+      "category": "作品",
+      "description": "音楽作品の基本情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "作品ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE",
+          "description": "作品コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "music_category",
+          "type": "VARCHAR(20)",
+          "constraints": "",
+          "description": "音楽カテゴリ（'western': 洋楽, 'japanese': 邦楽）"
+        },
+        {
+          "name": "title_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "作品名（日本語、作品番号・楽章含む）"
+        },
+        {
+          "name": "title_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "作品名（英語・原綴り含む）"
+        },
+        {
+          "name": "subtitle_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "副題（日本語）"
+        },
+        {
+          "name": "subtitle_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "副題（英語）"
+        },
+        {
+          "name": "nickname",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "愛称（《運命》《月光》など）"
+        },
+        {
+          "name": "key_signature",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "調性（\"C minor\", \"ト短調\"など）"
+        },
+        {
+          "name": "opus_number",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "Op.番号、BWV、K.番号など"
+        },
+        {
+          "name": "catalog_number",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "作品目録番号（opus_numberと別扱い）"
+        },
+        {
+          "name": "composition_year",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "作曲年（不明の場合が多いのでVARCHAR）"
+        },
+        {
+          "name": "instrumentation",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "編成（Strings, Pf, Fl+Cl+Vn など）"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "演奏時間（分、目安）"
+        },
+        {
+          "name": "language",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "言語（オペラ用、例：イタリア語、ドイツ語、フランス語）"
+        },
+        {
+          "name": "original_work",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "原作（オペラ用、例：小説、戯曲）"
+        },
+        {
+          "name": "school_lineage",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "流派・家元（邦楽用、例：沢井、宮城、正派、都山流、琴古流）"
+        },
+        {
+          "name": "notation_system",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "記譜法（邦楽用、例：数字譜、文化譜、工工四）"
+        },
+        {
+          "name": "tuning",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "調弦（邦楽用、例：本調子、二上り、三下り）"
+        },
+        {
+          "name": "pipe_length",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "管長（邦楽用、尺八の場合、例：1尺8寸）"
+        },
+        {
+          "name": "string_count",
+          "type": "INTEGER",
+          "constraints": "",
+          "description": "弦数（邦楽用、箏の場合、例：13、17、20）"
+        },
+        {
+          "name": "transmitter_id",
+          "type": "BIGINT",
+          "constraints": "FK to people_orgs",
+          "description": "伝承者ID（邦楽用）"
+        },
+        {
+          "name": "performance_system",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "演奏体系（邦楽用、例：地歌系、雅楽系、民謡系）"
+        },
+        {
+          "name": "performance_notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "奏法注記（邦楽用、押し手、メリカリなど）"
+        },
+        {
+          "name": "first_performance_location",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "初演・伝承地（邦楽用）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "作品説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "作品説明（英語）"
+        },
+        {
+          "name": "jasrac_title",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "JASRAC曲名"
+        },
+        {
+          "name": "jwid_number",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "J-WID番号"
+        },
+        {
+          "name": "copyright_status",
+          "type": "VARCHAR(50)",
+          "constraints": "",
+          "description": "著作権状態"
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "備考"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "transmitter_id",
+          "references_table": "people_orgs",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "event_series",
+      "category": "マスタテーブル",
+      "description": "定期的に開催される公演シリーズを管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "公演シリーズID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "シリーズコード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "シリーズ名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "シリーズ名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "scholarships",
+      "category": "マスタテーブル",
+      "description": "学内の奨学金・助成金制度の情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "奨学金ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "奨学金コード（スラッグ用、例: `ataka-scholarship`）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "奨学金名（日本語、例: 「安宅賞奨学基金」）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "奨学金名（英語）"
+        },
+        {
+          "name": "target",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "対象（自由入力、複数行可。例: 「音楽学部 器楽科ピアノ、弦楽、管打楽専攻 各1名\\n大学院音楽研究科 声楽専攻、オペラ専攻 1名」）"
+        },
+        {
+          "name": "amount_text",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "給付額（自由入力。例: 「36,000円」「入学時1,000,000円、在学期間年額500,000円」「美術・音楽学部：200,000円\\n大学院：300,000円」）"
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "概要（長文テキスト）"
+        },
+        {
+          "name": "representative",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "代表者等"
+        },
+        {
+          "name": "established",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "設立（自由入力、例: 「昭和13年」「平成25年」）"
+        },
+        {
+          "name": "department_tags",
+          "type": "JSONB",
+          "constraints": "DEFAULT '[]'",
+          "description": "対象専攻コードの配列（例: `[\"piano\", \"strings\", \"wind-percussion\"]`）。`departments`マスタのcodeを参照。フィルタリング用途。"
+        },
+        {
+          "name": "deadline",
+          "type": "DATE",
+          "constraints": "",
+          "description": "応募締切日（NULL可、表示するかは運用判断）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順（昇順）"
+        },
+        {
+          "name": "is_published",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT false",
+          "description": "公開フラグ（true: 公開、false: 非公開）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ（論理削除用）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "departments",
+      "category": "マスタテーブル",
+      "description": "音楽学部・大学院音楽研究科の専攻（科）を管理するマスタテーブル",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "専攻ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "専攻コード（例: `composition`, `vocal-opera`, `piano`）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "専攻名（日本語、例: 「作曲」「声楽／オペラ」）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "専攻名（英語、例: \"Composition\"）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順（昇順）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "post_categories",
+      "category": "投稿記事",
+      "description": "投稿記事のカテゴリを管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "カテゴリID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "カテゴリコード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "カテゴリ名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "カテゴリ名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "display_order",
+          "type": "INTEGER",
+          "constraints": "NOT NULL, DEFAULT 0",
+          "description": "表示順序（小さい順に表示）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "posts",
+      "category": "投稿記事",
+      "description": "お知らせや告知などの投稿記事の基本情報を管理",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "投稿ID（自動採番、記事番号として使用）"
+        },
+        {
+          "name": "title_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "NOT NULL",
+          "description": "タイトル（日本語）"
+        },
+        {
+          "name": "title_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "タイトル（英語）"
+        },
+        {
+          "name": "content_ja",
+          "type": "TEXT",
+          "constraints": "NOT NULL",
+          "description": "本文（日本語、HTML形式、表示・SEO用）"
+        },
+        {
+          "name": "content_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "本文（英語、HTML形式、表示・SEO用）"
+        },
+        {
+          "name": "content_blocks_ja",
+          "type": "JSONB",
+          "constraints": "",
+          "description": "ブロックエディタ用コンテンツ（日本語、Craft.js JSON形式）"
+        },
+        {
+          "name": "content_blocks_en",
+          "type": "JSONB",
+          "constraints": "",
+          "description": "ブロックエディタ用コンテンツ（英語、Craft.js JSON形式）"
+        },
+        {
+          "name": "category_id",
+          "type": "BIGINT",
+          "constraints": "FK to post_categories, NOT NULL",
+          "description": "カテゴリID"
+        },
+        {
+          "name": "published_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL",
+          "description": "公開予定日時（公開日時としても使用）"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": "CHECK制約, DEFAULT 'draft'",
+          "description": "公開状態（'draft'/'scheduled'/'published'/'archived'）"
+        },
+        {
+          "name": "meta_description_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "メタディスクリプション（日本語）"
+        },
+        {
+          "name": "meta_description_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "メタディスクリプション（英語）"
+        },
+        {
+          "name": "meta_keywords_ja",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "メタキーワード（日本語、カンマ区切り）"
+        },
+        {
+          "name": "meta_keywords_en",
+          "type": "VARCHAR(500)",
+          "constraints": "",
+          "description": "メタキーワード（英語、カンマ区切り）"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT",
+          "constraints": "FK to system_users",
+          "description": "作成者ID（NULL可、システム投稿の場合はNULL）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ（論理削除用）"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": [
+        {
+          "column": "category_id",
+          "references_table": "post_categories",
+          "references_column": "id"
+        },
+        {
+          "column": "created_by",
+          "references_table": "system_users",
+          "references_column": "id"
+        }
+      ]
+    },
+    {
+      "name": "performance_roles",
+      "category": "マスタテーブル",
+      "description": "演奏時の役割を管理（例：ピアノ、ヴァイオリン、作曲、指揮、声楽など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "演奏役割ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "演奏役割コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "category",
+          "type": "VARCHAR(50)",
+          "constraints": "NOT NULL, CHECK",
+          "description": "ロール種別（instrument/vocal/conductor/composition/arrangement/technical/staff/special）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "演奏役割名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "演奏役割名（英語）"
+        },
+        {
+          "name": "abbreviation_ja",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "略称（日本語）"
+        },
+        {
+          "name": "abbreviation_en",
+          "type": "VARCHAR(100)",
+          "constraints": "",
+          "description": "略称（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "formations",
+      "category": "マスタテーブル",
+      "description": "音楽の編成を管理（例：独奏、二重奏、三重奏、四重奏、室内楽、オーケストラ、合唱など）",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGSERIAL",
+          "constraints": "PRIMARY KEY",
+          "description": "編成ID（自動採番）"
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(50)",
+          "constraints": "UNIQUE, NOT NULL",
+          "description": "編成コード（スラッグ用、API参照用）"
+        },
+        {
+          "name": "name_ja",
+          "type": "VARCHAR(200)",
+          "constraints": "NOT NULL",
+          "description": "編成名（日本語）"
+        },
+        {
+          "name": "name_en",
+          "type": "VARCHAR(200)",
+          "constraints": "",
+          "description": "編成名（英語）"
+        },
+        {
+          "name": "description_ja",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（日本語）"
+        },
+        {
+          "name": "description_en",
+          "type": "TEXT",
+          "constraints": "",
+          "description": "説明（英語）"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": "NOT NULL, DEFAULT true",
+          "description": "有効/無効フラグ"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "作成日時"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "constraints": "NOT NULL, DEFAULT NOW()",
+          "description": "更新日時"
+        }
+      ],
+      "foreign_keys": []
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "events",
+        "label": "events\n(演奏会・イベントの基本情報を管理)",
+        "color": "#FF6B6B",
+        "category": "イベント中心",
+        "description": "演奏会・イベントの基本情報を管理"
+      },
+      {
+        "id": "event_types",
+        "label": "event_types\n(演奏会の種別を管理)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "演奏会の種別を管理"
+      },
+      {
+        "id": "event_attendance_categories",
+        "label": "event_attendance_categories\n(入場者数のカテゴリを管理（ヴォートル、ぴあ、学生、教職員など...)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "入場者数のカテゴリを管理（ヴォートル、ぴあ、学生、教職員など）"
+      },
+      {
+        "id": "event_attendance_details",
+        "label": "event_attendance_details\n(イベントの入場者数をカテゴリごとに管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントの入場者数をカテゴリごとに管理"
+      },
+      {
+        "id": "event_attendance",
+        "label": "event_attendance\n(イベントの入場者数サマリー情報を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントの入場者数サマリー情報を管理"
+      },
+      {
+        "id": "event_formations",
+        "label": "event_formations\n(イベントと編成の多対多の関係を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントと編成の多対多の関係を管理"
+      },
+      {
+        "id": "event_genres",
+        "label": "event_genres\n(イベントとジャンルの多対多の関係を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントとジャンルの多対多の関係を管理"
+      },
+      {
+        "id": "event_kitchen_cars",
+        "label": "event_kitchen_cars\n(イベントとキッチンカーの多対多の関係を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントとキッチンカーの多対多の関係を管理"
+      },
+      {
+        "id": "event_organizer_roles",
+        "label": "event_organizer_roles\n(イベントの主催者役割を管理（主催、共催、後援、協賛、協力など...)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントの主催者役割を管理（主催、共催、後援、協賛、協力など）"
+      },
+      {
+        "id": "event_organizers",
+        "label": "event_organizers\n(イベントの主催者情報を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントの主催者情報を管理"
+      },
+      {
+        "id": "event_performers",
+        "label": "event_performers\n(イベントの出演者情報を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントの出演者情報を管理"
+      },
+      {
+        "id": "event_recordings",
+        "label": "event_recordings\n(演奏会（`events`）の収録情報を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "演奏会（`events`）の収録情報を管理"
+      },
+      {
+        "id": "event_tickets",
+        "label": "event_tickets\n(イベントのチケット情報を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントのチケット情報を管理"
+      },
+      {
+        "id": "event_work_scores",
+        "label": "event_work_scores\n(演奏会プログラムの曲目（`event_works`）に対して...)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "演奏会プログラムの曲目（`event_works`）に対して、パートごとの楽譜情報を管理"
+      },
+      {
+        "id": "event_works",
+        "label": "event_works\n(イベントと作品の対応関係を管理)",
+        "color": "#00bfff",
+        "category": "イベント関連",
+        "description": "イベントと作品の対応関係を管理"
+      },
+      {
+        "id": "kitchen_cars",
+        "label": "kitchen_cars\n(キッチンカー出店情報を管理)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "キッチンカー出店情報を管理"
+      },
+      {
+        "id": "server_configs",
+        "label": "server_configs\n(サーバ側の非公開設定情報を管理)",
+        "color": "#FFDAC1",
+        "category": "システム管理",
+        "description": "サーバ側の非公開設定情報を管理"
+      },
+      {
+        "id": "site_settings",
+        "label": "site_settings\n(Webサイトの公開設定情報を管理)",
+        "color": "#FFDAC1",
+        "category": "システム管理",
+        "description": "Webサイトの公開設定情報を管理"
+      },
+      {
+        "id": "system_users",
+        "label": "system_users\n(管理画面にログインするシステムユーザー（サイト編集者）の基本...)",
+        "color": "#FFDAC1",
+        "category": "システム管理",
+        "description": "管理画面にログインするシステムユーザー（サイト編集者）の基本情報を管理"
+      },
+      {
+        "id": "genres",
+        "label": "genres\n(音楽のジャンルを管理（例：協奏曲、作曲、声楽、ピアノ、管打楽...)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "音楽のジャンルを管理（例：協奏曲、作曲、声楽、ピアノ、管打楽など）"
+      },
+      {
+        "id": "ticket_types",
+        "label": "ticket_types\n(チケットの種別を管理（例：一般、一般（当日）、台東区民割、台...)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "チケットの種別を管理（例：一般、一般（当日）、台東区民割、台東区民割（当日）、U-25など）"
+      },
+      {
+        "id": "content_images",
+        "label": "content_images\n(ページ・コンテンツ（ニュース、会場情報等）に関連する画像を管...)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "ページ・コンテンツ（ニュース、会場情報等）に関連する画像を管理"
+      },
+      {
+        "id": "event_images",
+        "label": "event_images\n(イベントに関連する画像（フライヤー、ポスター、ギャラリー、記...)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "イベントに関連する画像（フライヤー、ポスター、ギャラリー、記録写真等）を管理"
+      },
+      {
+        "id": "hero_banners",
+        "label": "hero_banners\n(トップページのヒーローエリアに表示するバナー画像を管理)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "トップページのヒーローエリアに表示するバナー画像を管理"
+      },
+      {
+        "id": "media_files",
+        "label": "media_files\n(アップロードされたメディアファイル（画像、PDF等）の基本情...)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "アップロードされたメディアファイル（画像、PDF等）の基本情報を一元管理"
+      },
+      {
+        "id": "media_variations",
+        "label": "media_variations\n(元の画像から生成されたバリエーション（サムネイル、中サイズ、...)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "元の画像から生成されたバリエーション（サムネイル、中サイズ、大サイズ）を管理。**現在の実装ではAVIF形式**（詳細は [メディアファイル管理設計方針](./メディアファイル管理設計方針.md) の「最新の構成（AVIF移行後）」を参照）"
+      },
+      {
+        "id": "performer_images",
+        "label": "performer_images\n(人物・団体（演奏者）に関連する画像（プロフィール写真、ポート...)",
+        "color": "#C7CEEA",
+        "category": "メディア管理",
+        "description": "人物・団体（演奏者）に関連する画像（プロフィール写真、ポートレート、活動写真等）を管理"
+      },
+      {
+        "id": "people_orgs",
+        "label": "people_orgs\n(人物と団体の基本情報を統一的に管理)",
+        "color": "#FFE66D",
+        "category": "人物・団体",
+        "description": "人物と団体の基本情報を統一的に管理"
+      },
+      {
+        "id": "organization_memberships",
+        "label": "organization_memberships\n(団体や音楽グループのメンバーシップ情報を管理)",
+        "color": "#FFE66D",
+        "category": "人物・団体",
+        "description": "団体や音楽グループのメンバーシップ情報を管理"
+      },
+      {
+        "id": "people_org_awards",
+        "label": "people_org_awards\n(人物と団体の受賞情報を管理)",
+        "color": "#FFE66D",
+        "category": "人物・団体",
+        "description": "人物と団体の受賞情報を管理"
+      },
+      {
+        "id": "people_org_details",
+        "label": "people_org_details\n(人物と団体の詳細情報を統一的に管理)",
+        "color": "#FFE66D",
+        "category": "人物・団体",
+        "description": "人物と団体の詳細情報を統一的に管理"
+      },
+      {
+        "id": "person_aliases",
+        "label": "person_aliases\n(人物の別名（芸名、ペンネーム、旧名、通称など）を管理)",
+        "color": "#FFE66D",
+        "category": "人物・団体",
+        "description": "人物の別名（芸名、ペンネーム、旧名、通称など）を管理"
+      },
+      {
+        "id": "venues",
+        "label": "venues\n(演奏会で使用する会場の基本情報を管理)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "演奏会で使用する会場の基本情報を管理"
+      },
+      {
+        "id": "work_arrangers",
+        "label": "work_arrangers\n()",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": ""
+      },
+      {
+        "id": "work_composers",
+        "label": "work_composers\n()",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": ""
+      },
+      {
+        "id": "work_expressions",
+        "label": "work_expressions\n(FRBRのExpressionレベルを管理（編曲・版など）)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "FRBRのExpressionレベルを管理（編曲・版など）"
+      },
+      {
+        "id": "work_genres",
+        "label": "work_genres\n(作品とジャンルの多対多の関係を管理)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "作品とジャンルの多対多の関係を管理"
+      },
+      {
+        "id": "work_librettists",
+        "label": "work_librettists\n()",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": ""
+      },
+      {
+        "id": "work_lyricists",
+        "label": "work_lyricists\n()",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": ""
+      },
+      {
+        "id": "work_movements",
+        "label": "work_movements\n(作品の楽章情報を管理)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "作品の楽章情報を管理"
+      },
+      {
+        "id": "work_score_items",
+        "label": "work_score_items\n(FRBRのItemレベルを管理（所蔵楽譜1冊1冊）)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "FRBRのItemレベルを管理（所蔵楽譜1冊1冊）"
+      },
+      {
+        "id": "work_score_manifestations",
+        "label": "work_score_manifestations\n(FRBRのManifestationレベルを管理（楽譜版・出...)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "FRBRのManifestationレベルを管理（楽譜版・出版社単位）"
+      },
+      {
+        "id": "works",
+        "label": "works\n(音楽作品の基本情報を管理)",
+        "color": "#ee82ee",
+        "category": "作品",
+        "description": "音楽作品の基本情報を管理"
+      },
+      {
+        "id": "event_series",
+        "label": "event_series\n(定期的に開催される公演シリーズを管理)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "定期的に開催される公演シリーズを管理"
+      },
+      {
+        "id": "scholarships",
+        "label": "scholarships\n(学内の奨学金・助成金制度の情報を管理)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "学内の奨学金・助成金制度の情報を管理"
+      },
+      {
+        "id": "departments",
+        "label": "departments\n(音楽学部・大学院音楽研究科の専攻（科）を管理するマスタテーブ...)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "音楽学部・大学院音楽研究科の専攻（科）を管理するマスタテーブル"
+      },
+      {
+        "id": "post_categories",
+        "label": "post_categories\n(投稿記事のカテゴリを管理)",
+        "color": "#ffa07a",
+        "category": "投稿記事",
+        "description": "投稿記事のカテゴリを管理"
+      },
+      {
+        "id": "posts",
+        "label": "posts\n(お知らせや告知などの投稿記事の基本情報を管理)",
+        "color": "#ffa07a",
+        "category": "投稿記事",
+        "description": "お知らせや告知などの投稿記事の基本情報を管理"
+      },
+      {
+        "id": "performance_roles",
+        "label": "performance_roles\n(演奏時の役割を管理（例：ピアノ、ヴァイオリン、作曲、指揮、声...)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "演奏時の役割を管理（例：ピアノ、ヴァイオリン、作曲、指揮、声楽など）"
+      },
+      {
+        "id": "formations",
+        "label": "formations\n(音楽の編成を管理（例：独奏、二重奏、三重奏、四重奏、室内楽、...)",
+        "color": "#4ECDC4",
+        "category": "マスタテーブル",
+        "description": "音楽の編成を管理（例：独奏、二重奏、三重奏、四重奏、室内楽、オーケストラ、合唱など）"
+      }
+    ],
+    "edges": [
+      {
+        "from": "events",
+        "to": "event_types",
+        "label": "event_type_id",
+        "arrows": "to"
+      },
+      {
+        "from": "events",
+        "to": "event_series",
+        "label": "event_series_id",
+        "arrows": "to"
+      },
+      {
+        "from": "events",
+        "to": "venues",
+        "label": "venue_id",
+        "arrows": "to"
+      },
+      {
+        "from": "events",
+        "to": "kitchen_cars",
+        "label": "kitchen_car_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_attendance_details",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_attendance_details",
+        "to": "event_attendance_categories",
+        "label": "attendance_category_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_attendance",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_formations",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_formations",
+        "to": "formations",
+        "label": "formation_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_genres",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_genres",
+        "to": "genres",
+        "label": "genre_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_kitchen_cars",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_kitchen_cars",
+        "to": "kitchen_cars",
+        "label": "kitchen_car_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_organizers",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_organizers",
+        "to": "event_organizer_roles",
+        "label": "organizer_role_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_organizers",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_performers",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_performers",
+        "to": "event_works",
+        "label": "event_work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_performers",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_performers",
+        "to": "performance_roles",
+        "label": "performance_role_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_recordings",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_tickets",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_tickets",
+        "to": "ticket_types",
+        "label": "ticket_type_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_work_scores",
+        "to": "event_works",
+        "label": "event_work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_work_scores",
+        "to": "performance_roles",
+        "label": "performance_role_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_work_scores",
+        "to": "work_score_manifestations",
+        "label": "score_manifestation_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_work_scores",
+        "to": "work_score_items",
+        "label": "score_item_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_works",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_works",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "kitchen_cars",
+        "to": "media_files",
+        "label": "media_file_id",
+        "arrows": "to"
+      },
+      {
+        "from": "site_settings",
+        "to": "media_files",
+        "label": "logo_image_id",
+        "arrows": "to"
+      },
+      {
+        "from": "site_settings",
+        "to": "media_files",
+        "label": "favicon_image_id",
+        "arrows": "to"
+      },
+      {
+        "from": "site_settings",
+        "to": "media_files",
+        "label": "default_og_image_id",
+        "arrows": "to"
+      },
+      {
+        "from": "content_images",
+        "to": "media_files",
+        "label": "media_file_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_images",
+        "to": "events",
+        "label": "event_id",
+        "arrows": "to"
+      },
+      {
+        "from": "event_images",
+        "to": "media_files",
+        "label": "media_file_id",
+        "arrows": "to"
+      },
+      {
+        "from": "hero_banners",
+        "to": "media_files",
+        "label": "media_file_id",
+        "arrows": "to"
+      },
+      {
+        "from": "media_files",
+        "to": "system_users",
+        "label": "uploaded_by",
+        "arrows": "to"
+      },
+      {
+        "from": "media_variations",
+        "to": "media_files",
+        "label": "original_media_id",
+        "arrows": "to"
+      },
+      {
+        "from": "performer_images",
+        "to": "people_orgs",
+        "label": "performer_id",
+        "arrows": "to"
+      },
+      {
+        "from": "performer_images",
+        "to": "media_files",
+        "label": "media_file_id",
+        "arrows": "to"
+      },
+      {
+        "from": "organization_memberships",
+        "to": "people_orgs",
+        "label": "organization_id",
+        "arrows": "to"
+      },
+      {
+        "from": "organization_memberships",
+        "to": "people_orgs",
+        "label": "member_id",
+        "arrows": "to"
+      },
+      {
+        "from": "people_org_awards",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "people_org_details",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "people_org_details",
+        "to": "media_files",
+        "label": "photo_media_id",
+        "arrows": "to"
+      },
+      {
+        "from": "person_aliases",
+        "to": "people_orgs",
+        "label": "person_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_arrangers",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_arrangers",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_composers",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_composers",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_expressions",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_expressions",
+        "to": "people_orgs",
+        "label": "arranger_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_expressions",
+        "to": "people_orgs",
+        "label": "transmitter_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_genres",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_genres",
+        "to": "genres",
+        "label": "genre_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_librettists",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_librettists",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_lyricists",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_lyricists",
+        "to": "people_orgs",
+        "label": "people_org_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_movements",
+        "to": "works",
+        "label": "work_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_score_items",
+        "to": "work_score_manifestations",
+        "label": "score_manifestation_id",
+        "arrows": "to"
+      },
+      {
+        "from": "work_score_manifestations",
+        "to": "work_expressions",
+        "label": "work_expression_id",
+        "arrows": "to"
+      },
+      {
+        "from": "works",
+        "to": "people_orgs",
+        "label": "transmitter_id",
+        "arrows": "to"
+      },
+      {
+        "from": "posts",
+        "to": "post_categories",
+        "label": "category_id",
+        "arrows": "to"
+      },
+      {
+        "from": "posts",
+        "to": "system_users",
+        "label": "created_by",
+        "arrows": "to"
+      }
+    ]
+  },
+  "categories": [
+    "イベント中心",
+    "マスタテーブル",
+    "イベント関連",
+    "人物・団体",
+    "作品",
+    "メディア管理",
+    "投稿記事",
+    "システム管理"
+  ],
+  "category_colors": {
+    "イベント中心": "#FF6B6B",
+    "マスタテーブル": "#4ECDC4",
+    "イベント関連": "#00bfff",
+    "人物・団体": "#FFE66D",
+    "作品": "#ee82ee",
+    "メディア管理": "#C7CEEA",
+    "投稿記事": "#ffa07a",
+    "システム管理": "#FFDAC1"
+  }
+}

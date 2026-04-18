@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>演奏会情報管理システム - テーブルリレーション構造図</title>
+    <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #cccccc 0%, #333333 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 90px);
+        }
+
+        #mynetwork {
+            flex: 1;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        aside {
+            width: 350px;
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .legend {
+            margin-bottom: 30px;
+        }
+
+        .legend h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info li {
+            padding: 4px 0;
+        }
+
+        .info li:before {
+            content: "・";
+            margin-right: 4px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .controls h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        #selectedNode {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-left: 4px solid #e18439;
+            border-radius: 4px;
+            display: none;
+        }
+
+        #selectedNode h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e18439;
+            margin-bottom: 8px;
+        }
+
+        #selectedNode p {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        #selectedNode .foreign-keys {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #BBDEFB;
+        }
+
+        #selectedNode .foreign-keys h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e18439;
+            margin-bottom: 6px;
+        }
+
+        #selectedNode .foreign-key-item {
+            font-size: 12px;
+            color: #555;
+            padding: 4px 0;
+        }
+
+        #selectedNode .columns {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #BBDEFB;
+        }
+
+        #selectedNode .columns h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e18439;
+            margin-bottom: 8px;
+        }
+
+        #selectedNode .columns-link {
+            color: #e18439;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #selectedNode .columns-link:hover {
+            color: #0D47A1;
+        }
+
+        /* モーダルダイアログ */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E3F2FD;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #e18439;
+            font-size: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .modal-body {
+            max-height: calc(80vh - 120px);
+            overflow-y: auto;
+        }
+
+        .modal-column-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .modal-column-table th {
+            background: #E3F2FD;
+            color: #e18439;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid #BBDEFB;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-column-table td {
+            padding: 8px 12px;
+            border: 1px solid #E3F2FD;
+            color: #333;
+        }
+
+        .modal-column-table tr:nth-child(even) {
+            background: #F5F9FC;
+        }
+
+        .modal-column-table tr:hover {
+            background: #E8F4FD;
+        }
+
+        .modal-column-name {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #e18439;
+        }
+
+        .modal-column-type {
+            font-family: 'Courier New', monospace;
+            color: #666;
+        }
+
+        .modal-column-constraints {
+            font-size: 11px;
+            color: #888;
+        }
+
+        #selectedNode .column-table {
+            width: 100%;
+            font-size: 11px;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+
+        #selectedNode .column-table th {
+            background: #E3F2FD;
+            color: #e18439;
+            padding: 4px 6px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 10px;
+            border: 1px solid #BBDEFB;
+        }
+
+        #selectedNode .column-table td {
+            padding: 4px 6px;
+            border: 1px solid #E3F2FD;
+            color: #555;
+        }
+
+        #selectedNode .column-table tr:nth-child(even) {
+            background: #F5F9FC;
+        }
+
+        #selectedNode .column-name {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #e18439;
+        }
+
+        #selectedNode .column-type {
+            font-family: 'Courier New', monospace;
+            color: #666;
+        }
+
+        #selectedNode .column-constraints {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .stats {
+            background: #f0f7ff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .stats-item:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>演奏会情報管理システム - データベーステーブルリレーション構造図</h1>
+        <p class="subtitle">テーブル定義ドキュメント由来の外部キーを可視化（LRMoo 対応の概念整理は Docs/テーブル設計/LRMoo対応付け.md を参照）</p>
+    </header>
+
+    <div class="container">
+        <div id="mynetwork"></div>
+
+        <aside>
+            <div class="stats" id="stats">
+                <div class="stats-item">
+                    <span>テーブル数:</span>
+                    <span id="tableCount">-</span>
+                </div>
+                <div class="stats-item">
+                    <span>リレーション数:</span>
+                    <span id="relationCount">-</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <h3>操作</h3>
+                <button class="button" onclick="network.fit()">全体表示</button>
+                <button class="button" onclick="network.moveTo({scale: 1.0})">ズームリセット</button>
+                <button class="button" onclick="resetLayout()">レイアウトリセット</button>
+            </div>
+
+            <div class="legend" id="legend">
+                <h2>凡例</h2>
+                <!-- 凡例はJavaScriptで動的に生成 -->
+            </div>
+
+            <div class="info">
+                <h3>使い方</h3>
+                <ul>
+                    <li>ノードをドラッグして配置調整</li>
+                    <li>マウスホイールでズーム</li>
+                    <li>ノードをクリックして詳細表示</li>
+                    <li>矢印は外部キーを示す（定義MDに記載の参照のみ）</li>
+                </ul>
+                <p style="margin-top:10px;font-size:12px;color:#555;">作品〜楽譜の階層（F1〜F5）やイベントとの意味付けは、リポジトリ内 <code>Docs/テーブル設計/LRMoo対応付け.md</code> とあわせて参照してください。</p>
+            </div>
+
+            <div id="selectedNode"></div>
+        </aside>
+    </div>
+
+    <!-- モーダルダイアログ -->
+    <div id="columnModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTableName">テーブル名</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- カラム一覧がここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- データファイルを読み込む（2つの方法をサポート） -->
+    <script src="table-relations-data.js"></script>
+    <script>
+        // データを読み込む（JavaScript変数から、またはfetchでJSONから）
+        let graphData = null;
+        let tableDescriptions = {};
+
+        // 方法1: JavaScript変数から読み込む（推奨、Webサーバー不要）
+        if (typeof TABLE_RELATIONS_DATA !== 'undefined') {
+            graphData = TABLE_RELATIONS_DATA;
+            initializeVisualization();
+        }
+        // 方法2: fetchでJSONファイルを読み込む（Webサーバーが必要）
+        else {
+            fetch('table-relations.json')
+                .then(response => response.json())
+                .then(data => {
+                    graphData = data;
+                    initializeVisualization();
+                })
+                .catch(error => {
+                    console.error('データファイルの読み込みエラー:', error);
+                    document.getElementById('mynetwork').innerHTML = 
+                        '<div style="padding: 20px; text-align: center; color: #666;">' +
+                        '<h3>データファイルが見つかりません</h3>' +
+                        '<p>以下のいずれかの方法でデータを準備してください:</p>' +
+                        '<ol style="text-align: left; display: inline-block;">' +
+                        '<li><code>extract_relations.py</code> を実行してデータファイルを生成</li>' +
+                        '<li><code>table-relations-data.js</code> または <code>table-relations.json</code> が同じディレクトリにあることを確認</li>' +
+                        '<li>Webサーバーを使用する場合は、サーバー経由でHTMLファイルを開く</li>' +
+                        '</ol>' +
+                        '</div>';
+                });
+        }
+
+        function initializeVisualization() {
+            // テーブル説明のマッピングを作成
+            graphData.tables.forEach(table => {
+                tableDescriptions[table.name] = table.description;
+            });
+
+            // 凡例を生成
+            generateLegend();
+
+            // 統計情報を更新
+            document.getElementById('tableCount').textContent = graphData.graph.nodes.length;
+            document.getElementById('relationCount').textContent = graphData.graph.edges.length;
+
+            // ノードデータを準備
+            const nodes = new vis.DataSet(
+                graphData.graph.nodes.map(node => ({
+                    id: node.id,
+                    label: node.label,
+                    color: node.color,
+                    shape: node.category === 'イベント関連' ? 'ellipse' : 'box',
+                    font: {
+                        size: node.category === 'イベント中心' ? 14 : 12,
+                        color: node.category === 'イベント中心' ? '#fff' : '#333',
+                        bold: node.category === 'イベント中心',
+                    },
+                    category: node.category,
+                    description: node.description,
+                }))
+            );
+
+            // エッジデータを準備
+            const edges = new vis.DataSet(
+                graphData.graph.edges.map(edge => ({
+                    from: edge.from,
+                    to: edge.to,
+                    label: edge.label,
+                    arrows: 'to',
+                    font: {
+                        size: 10,
+                        align: 'top',
+                    },
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'none',
+                        roundness: 0.5,
+                    },
+                }))
+            );
+
+            // ネットワークのコンテナを取得
+            const container = document.getElementById('mynetwork');
+
+            // データをセット
+            const data = {
+                nodes: nodes,
+                edges: edges,
+            };
+
+            // オプション設定
+            const options = {
+                nodes: {
+                    shape: 'box',
+                    margin: 10,
+                    widthConstraint: {
+                        minimum: 120,
+                        maximum: 180,
+                    },
+                    heightConstraint: {
+                        minimum: 60,
+                        maximum: 100,
+                    },
+                    borderWidth: 2,
+                    borderWidthSelected: 3,
+                    font: {
+                        size: 12,
+                        face: 'Helvetica, Arial, sans-serif',
+                    },
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.1)',
+                        size: 5,
+                        x: 2,
+                        y: 2,
+                    },
+                },
+                edges: {
+                    width: 1.5,
+                    color: {
+                        color: '#848484',
+                        highlight: '#FF6B6B',
+                        hover: '#FF6B6B',
+                    },
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'none',
+                        roundness: 0.5,
+                    },
+                    arrows: {
+                        to: {
+                            enabled: true,
+                            scaleFactor: 0.5,
+                        },
+                    },
+                    font: {
+                        size: 10,
+                        color: '#666',
+                        background: 'rgba(255,255,255,0.8)',
+                        strokeWidth: 0,
+                    },
+                },
+                physics: {
+                    enabled: true,
+                    barnesHut: {
+                        gravitationalConstant: -8000,
+                        centralGravity: 0.3,
+                        springLength: 150,
+                        springConstant: 0.04,
+                        damping: 0.09,
+                        avoidOverlap: 0.5,
+                    },
+                    stabilization: {
+                        enabled: true,
+                        iterations: 200,
+                        updateInterval: 25,
+                    },
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 200,
+                    zoomView: true,
+                    dragView: true,
+                    navigationButtons: false,
+                },
+                layout: {
+                    improvedLayout: true,
+                    hierarchical: false,
+                },
+            };
+
+            // ネットワークを初期化
+            window.network = new vis.Network(container, data, options);
+
+            // ノードクリック時のイベント
+            network.on('click', function(params) {
+                const selectedNodeDiv = document.getElementById('selectedNode');
+
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const node = nodes.get(nodeId);
+                    const description = node.description || tableDescriptions[nodeId] || 'テーブルの説明がありません';
+
+                    // テーブル情報を取得
+                    const tableInfo = graphData.tables.find(t => t.name === nodeId);
+
+                    // 外部キー情報を取得
+                    const foreignKeys = graphData.graph.edges
+                        .filter(edge => edge.from === nodeId)
+                        .map(edge => ({
+                            column: edge.label,
+                            referencesTable: edge.to,
+                        }));
+
+                    // このテーブルを参照しているテーブルを取得
+                    const referencedBy = graphData.graph.edges
+                        .filter(edge => edge.to === nodeId)
+                        .map(edge => ({
+                            column: edge.label,
+                            referencesFrom: edge.from,
+                        }));
+
+                    let html = `
+                        <h3>${nodeId}</h3>
+                        <p><strong>カテゴリ:</strong> ${node.category}</p>
+                        <p>${description}</p>
+                    `;
+
+                    // カラム情報を表示（クリックでモーダル表示）
+                    if (tableInfo && tableInfo.columns && tableInfo.columns.length > 0) {
+                        // カラムデータをグローバル変数に保存（モーダル表示用）
+                        if (!window.tableColumnsCache) {
+                            window.tableColumnsCache = {};
+                        }
+                        window.tableColumnsCache[nodeId] = tableInfo.columns;
+                        
+                        html += `
+                            <div class="columns">
+                                <h4>カラム一覧</h4>
+                                <a href="#" class="columns-link" onclick="showColumnModal('${nodeId}'); return false;">
+                                    ${tableInfo.columns.length}件のカラムを表示
+                                </a>
+                            </div>
+                        `;
+                    }
+
+                    if (foreignKeys.length > 0) {
+                        html += `
+                            <div class="foreign-keys">
+                                <h4>外部キー（参照先）</h4>
+                                ${foreignKeys.map(fk => `
+                                    <div class="foreign-key-item">
+                                        <strong>${fk.column}</strong> → ${fk.referencesTable}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    if (referencedBy.length > 0) {
+                        html += `
+                            <div class="foreign-keys">
+                                <h4>参照元テーブル</h4>
+                                ${referencedBy.map(ref => `
+                                    <div class="foreign-key-item">
+                                        ${ref.referencesFrom} → <strong>${ref.column}</strong>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    selectedNodeDiv.innerHTML = html;
+                    selectedNodeDiv.style.display = 'block';
+                } else {
+                    selectedNodeDiv.style.display = 'none';
+                }
+            });
+
+            // 物理演算が完了したら停止
+            network.once('stabilizationIterationsDone', function() {
+                network.setOptions({
+                    physics: {
+                        enabled: false,
+                    },
+                });
+            });
+
+            // 初期表示時に全体を表示
+            network.once('stabilized', function() {
+                network.fit({
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad',
+                    },
+                });
+            });
+        }
+
+        function generateLegend() {
+            const legendDiv = document.getElementById('legend');
+            const categories = graphData.categories || [];
+            const colors = graphData.category_colors || {};
+
+            let legendHTML = '<h2>凡例</h2>';
+            categories.forEach(category => {
+                const color = colors[category] || '#CCCCCC';
+                legendHTML += `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: ${color};"></div>
+                        <span>${category}</span>
+                    </div>
+                `;
+            });
+
+            legendDiv.innerHTML = legendHTML;
+        }
+
+        function resetLayout() {
+            if (window.network) {
+                window.network.setOptions({
+                    physics: {
+                        enabled: true,
+                    },
+                });
+                setTimeout(() => {
+                    window.network.setOptions({
+                        physics: {
+                            enabled: false,
+                        },
+                    });
+                }, 1000);
+            }
+        }
+
+        // モーダルダイアログの関数
+        function showColumnModal(tableName) {
+            const modal = document.getElementById('columnModal');
+            const modalTableName = document.getElementById('modalTableName');
+            const modalBody = document.getElementById('modalBody');
+
+            // カラムデータを取得
+            const columns = window.tableColumnsCache && window.tableColumnsCache[tableName];
+            if (!columns || columns.length === 0) {
+                alert('カラム情報が見つかりません');
+                return;
+            }
+
+            modalTableName.textContent = `${tableName} - カラム一覧 (${columns.length}件)`;
+
+            // カラムテーブルを生成
+            let tableHTML = `
+                <table class="modal-column-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">カラム名</th>
+                            <th style="width: 15%;">データ型</th>
+                            <th style="width: 25%;">制約</th>
+                            <th style="width: 40%;">説明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${columns.map(col => {
+                            // HTMLエスケープ処理
+                            const name = escapeHtml(col.name);
+                            const type = escapeHtml(col.type);
+                            const constraints = escapeHtml(col.constraints || '');
+                            const description = escapeHtml(col.description || '');
+                            return `
+                                <tr>
+                                    <td><span class="modal-column-name">${name}</span></td>
+                                    <td><span class="modal-column-type">${type}</span></td>
+                                    <td><span class="modal-column-constraints">${constraints}</span></td>
+                                    <td>${description}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            modalBody.innerHTML = tableHTML;
+            modal.style.display = 'block';
+        }
+
+        // HTMLエスケープ関数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('columnModal');
+            modal.style.display = 'none';
+        }
+
+        // モーダル外をクリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('columnModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
