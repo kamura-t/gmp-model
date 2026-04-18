@@ -1,3 +1,9 @@
+情報共有のためのWebサーバ代わりに使用しています
+
+https://kamura-t.github.io/gmp-model/table-relations-visualization.html
+
+https://kamura-t.github.io/gmp-model/GMP.pdf
+
 # テーブルリレーション構造可視化
 
 演奏会情報管理システムのデータベーステーブル間のリレーション構造を可視化するツールです。
